@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-07-07T12:16:12+00:00",
+  "weights": "best.pt",
+  "dataset": "Sudars et al. 2020 (Mendeley nj4vtk4tt6, CC BY 4.0), split val",
+  "map50": 0.8024,
+  "map50_95": 0.5221,
+  "per_class": {
+    "crop": {
+      "ap50": 0.7926,
+      "ap50_95": 0.5217
+    },
+    "weed": {
+      "ap50": 0.8122,
+      "ap50_95": 0.5224
+    }
+  },
+  "inference": {
+    "fps": 25.3,
+    "benchmark_images": 100,
+    "device": "mps",
+    "imgsz": 640,
+    "machine": "Darwin arm64"
+  },
+  "ultralytics_version": "8.4.90"
+}

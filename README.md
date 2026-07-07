@@ -40,15 +40,38 @@ black box.
 |---|---|---|---|
 | M0 | Scaffold, docs, method | Smoke tests green, independent audit passed | ✅ |
 | M1 | Dataset selected (license checked) + EDA | Valid `data.yaml`, class stats documented | ✅ |
-| M2 | Fine-tuned baseline | mAP@50 measured on val split, archived in `metrics/` | ⬜ |
+| M2 | Fine-tuned baseline | mAP@50 measured on val split, archived in `metrics/` | ✅ |
 | M3 | Video pipeline: detection + tracking | FPS benchmark + annotated video with stable IDs | ⬜ |
 | M4 | Streamlit demo + Docker image | One-command `docker run` → usable demo | ⬜ |
 | M5 | Public release | Public repo, English README, demo GIF, metrics table | ⬜ |
 
 ## Metrics
 
-*Coming at M2/M3 — every number in this table is produced by
-`scripts/evaluate.py` and archived in `metrics/`.*
+*Every number below is produced by `scripts/evaluate.py` and archived in
+[`metrics/`](metrics/) — nothing is hand-written.*
+
+Fine-tuned **YOLO11n** (2.58 M fused parameters, as reported by the model
+summary in `scripts/evaluate.py`), 60 epochs at 640 px.
+Validation split: 235 images / 1 483 boxes.
+
+| Metric | all | crop | weed |
+|---|---|---|---|
+| mAP@50 | **0.802** | 0.793 | 0.812 |
+| mAP@50-95 | 0.522 | 0.522 | 0.522 |
+
+> Note: the val split contains only 56 `crop` boxes (the dataset is heavily
+> weed-dominated), so per-class `crop` numbers carry statistical noise.
+
+Measured single-image inference speed (100 val images, 640 px, Apple M1 Pro):
+
+| Device | FPS |
+|---|---|
+| CPU | 22.3 |
+| Apple MPS | 25.3 |
+
+Sources: [`metrics/baseline.json`](metrics/baseline.json),
+[`metrics/baseline_cpu.json`](metrics/baseline_cpu.json),
+[`metrics/dataset_stats.json`](metrics/dataset_stats.json).
 
 ## Quickstart
 
