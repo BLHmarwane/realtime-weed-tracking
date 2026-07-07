@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-07-07T21:08:04+00:00",
+  "source": "test_video.mp4",
+  "weights": "best.pt",
+  "tracker": "bytetrack.yaml",
+  "conf_threshold": 0.25,
+  "imgsz": 640,
+  "device": "cpu",
+  "machine": "Darwin arm64",
+  "results": {
+    "frames": 600,
+    "detections": 1602,
+    "detections_per_frame": 2.67,
+    "unique_tracks": {
+      "crop": 2,
+      "weed": 51
+    },
+    "untracked_detections": 48,
+    "pipeline_fps": 16.21,
+    "source_fps": 25.0
+  }
+}

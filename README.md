@@ -41,7 +41,7 @@ black box.
 | M0 | Scaffold, docs, method | Smoke tests green, independent audit passed | ✅ |
 | M1 | Dataset selected (license checked) + EDA | Valid `data.yaml`, class stats documented | ✅ |
 | M2 | Fine-tuned baseline | mAP@50 measured on val split, archived in `metrics/` | ✅ |
-| M3 | Video pipeline: detection + tracking | FPS benchmark + annotated video with stable IDs | ⬜ |
+| M3 | Video pipeline: detection + tracking | FPS benchmark + annotated video with stable IDs | ✅ |
 | M4 | Streamlit demo + Docker image | One-command `docker run` → usable demo | ⬜ |
 | M5 | Public release | Public repo, English README, demo GIF, metrics table | ⬜ |
 
@@ -69,9 +69,33 @@ Measured single-image inference speed (100 val images, 640 px, Apple M1 Pro):
 | CPU | 22.3 |
 | Apple MPS | 25.3 |
 
+End-to-end **video pipeline** (detection + ByteTrack tracking + annotation +
+video writing), 640×640 test video, 600 frames — measured by
+`scripts/track_video.py`:
+
+| Device | Pipeline FPS |
+|---|---|
+| CPU | 16.2 |
+| Apple MPS | 37.1 |
+
+53 unique track IDs over 6 simulated camera passes (~29 frames per track on
+average — stable IDs, no fragmentation), identical tracking results on CPU
+and MPS.
+
 Sources: [`metrics/baseline.json`](metrics/baseline.json),
 [`metrics/baseline_cpu.json`](metrics/baseline_cpu.json),
+[`metrics/tracking.json`](metrics/tracking.json),
+[`metrics/tracking_cpu.json`](metrics/tracking_cpu.json),
 [`metrics/dataset_stats.json`](metrics/dataset_stats.json).
+
+## Test video
+
+`scripts/make_test_video.py` builds a deterministic test video from val
+images (same CC BY 4.0 source): a 640×640 window pans across each field
+image, simulating a weeding-robot camera pass — plants enter and leave the
+frame continuously, which is exactly what the tracker must handle. Stock
+footage was deliberately rejected: drone shots of mature crops are
+out-of-distribution for a model trained on top-down seedling images.
 
 ## Quickstart
 

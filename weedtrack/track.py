@@ -16,6 +16,7 @@ def iter_tracked_results(
     tracker: str = "bytetrack.yaml",
     conf: float = 0.25,
     imgsz: int = 640,
+    device: str | None = None,
 ) -> Iterator:
     """Itère sur les résultats détection+tracking d'une vidéo, frame par frame.
 
@@ -39,6 +40,7 @@ def iter_tracked_results(
         tracker=tracker,
         conf=conf,
         imgsz=imgsz,
+        device=device,
         stream=True,   # générateur : la vidéo n'est jamais chargée entière en RAM
         verbose=False,
     )
