@@ -1,0 +1,24 @@
+# Environnements et caches Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Datasets et poids de modèles : jamais dans Git
+data/*
+!data/README.md
+models/*
+!models/README.md
+runs/
+*.pt
+*.onnx
+*.engine
+
+# Sorties volumineuses de démo
+*.mp4
+*.avi
+*.mov
