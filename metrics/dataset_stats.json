@@ -1,0 +1,39 @@
+{
+  "dataset": "Sudars et al. 2020, Mendeley nj4vtk4tt6 v1 (CC BY 4.0)",
+  "seed": 42,
+  "val_ratio": 0.2,
+  "images": {
+    "val": 235,
+    "train": 941
+  },
+  "boxes": {
+    "val": {
+      "weed": 1427,
+      "crop": 56
+    },
+    "train": {
+      "weed": 6015,
+      "crop": 354
+    }
+  },
+  "skipped_xml_without_size": 0,
+  "xml_without_matching_image": 0,
+  "dropped_degenerate_boxes": 1,
+  "images_with_zero_valid_boxes": 0,
+  "boxes_per_image": {
+    "min": 1,
+    "max": 27,
+    "mean": 6.68
+  },
+  "image_sizes": {
+    "1280x720": 935,
+    "1000x750": 101,
+    "640x360": 43,
+    "750x1000": 34,
+    "640x480": 28,
+    "480x384": 19,
+    "480x640": 6,
+    "360x640": 5,
+    "384x480": 5
+  }
+}

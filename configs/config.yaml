@@ -4,7 +4,7 @@
 dataset:
   # Rempli à M1 une fois le dataset choisi (licence vérifiée d'abord — voir STATE.md).
   data_yaml: data/dataset/data.yaml
-  classes: [crop, weed]        # TODO(M1) : aligner sur les classes du dataset réel
+  classes: [crop, weed]        # confirmé M1 : labels natifs du dataset Sudars (ids 0/1)
 
 model:
   weights: yolo11n.pt          # nano : le plus léger, adapté au temps réel CPU

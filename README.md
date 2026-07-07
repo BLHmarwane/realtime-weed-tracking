@@ -39,7 +39,7 @@ black box.
 | # | Deliverable | Success criteria | Status |
 |---|---|---|---|
 | M0 | Scaffold, docs, method | Smoke tests green, independent audit passed | ✅ |
-| M1 | Dataset selected (license checked) + EDA | Valid `data.yaml`, class stats documented | ⬜ |
+| M1 | Dataset selected (license checked) + EDA | Valid `data.yaml`, class stats documented | ✅ |
 | M2 | Fine-tuned baseline | mAP@50 measured on val split, archived in `metrics/` | ⬜ |
 | M3 | Video pipeline: detection + tracking | FPS benchmark + annotated video with stable IDs | ⬜ |
 | M4 | Streamlit demo + Docker image | One-command `docker run` → usable demo | ⬜ |
