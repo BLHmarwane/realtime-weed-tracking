@@ -2,11 +2,10 @@
 
 ![tests](https://github.com/BLHmarwane/realtime-weed-tracking/actions/workflows/tests.yml/badge.svg)
 
-> 🚧 **Work in progress** — project scaffolded, training pipeline landing soon.
-> Follow the milestones table below.
-
 Detect crops vs. weeds in video and give every plant a **stable tracking ID** —
 so a precision-weeding robot never treats the same weed twice.
+
+![Detection and tracking demo — red boxes are weeds, with stable track IDs](assets/demo.gif)
 
 ## The story
 
@@ -43,7 +42,7 @@ black box.
 | M2 | Fine-tuned baseline | mAP@50 measured on val split, archived in `metrics/` | ✅ |
 | M3 | Video pipeline: detection + tracking | FPS benchmark + annotated video with stable IDs | ✅ |
 | M4 | Streamlit demo + Docker image | One-command `docker run` → usable demo | ✅ |
-| M5 | Public release | Public repo, English README, demo GIF, metrics table | ⬜ |
+| M5 | Public release | Public repo, English README, demo GIF, metrics table | ✅ |
 
 ## Metrics
 
@@ -103,9 +102,16 @@ out-of-distribution for a model trained on top-down seedling images.
 
 ```bash
 python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
+
+# Either: reproduce everything from scratch
 .venv/bin/python scripts/download_dataset.py      # dataset (CC BY 4.0, SHA-256 checked)
 .venv/bin/python scripts/train.py --device mps    # or cpu → produces models/best.pt
 .venv/bin/python scripts/make_test_video.py --num-images 2 --seconds 5 --out data/sample_video.mp4
+
+# Or: skip training, grab the released weights + sample video
+curl -L -o models/best.pt https://github.com/BLHmarwane/realtime-weed-tracking/releases/download/v0.1.0/best.pt
+curl -L -o data/sample_video.mp4 https://github.com/BLHmarwane/realtime-weed-tracking/releases/download/v0.1.0/sample_video.mp4
+
 .venv/bin/streamlit run app/streamlit_app.py      # → http://localhost:8501
 ```
 
