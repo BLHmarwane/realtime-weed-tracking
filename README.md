@@ -42,7 +42,7 @@ black box.
 | M1 | Dataset selected (license checked) + EDA | Valid `data.yaml`, class stats documented | ✅ |
 | M2 | Fine-tuned baseline | mAP@50 measured on val split, archived in `metrics/` | ✅ |
 | M3 | Video pipeline: detection + tracking | FPS benchmark + annotated video with stable IDs | ✅ |
-| M4 | Streamlit demo + Docker image | One-command `docker run` → usable demo | ⬜ |
+| M4 | Streamlit demo + Docker image | One-command `docker run` → usable demo | ✅ |
 | M5 | Public release | Public repo, English README, demo GIF, metrics table | ⬜ |
 
 ## Metrics
@@ -99,11 +99,30 @@ out-of-distribution for a model trained on top-down seedling images.
 
 ## Quickstart
 
-*Coming at M4. Target:*
+### Local
 
 ```bash
-docker run -p 8501:8501 <image>   # then open http://localhost:8501
+python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python scripts/download_dataset.py      # dataset (CC BY 4.0, SHA-256 checked)
+.venv/bin/python scripts/train.py --device mps    # or cpu → produces models/best.pt
+.venv/bin/python scripts/make_test_video.py --num-images 2 --seconds 5 --out data/sample_video.mp4
+.venv/bin/streamlit run app/streamlit_app.py      # → http://localhost:8501
 ```
+
+The demo ships with a **built-in sample video button** — no file needed to try
+it. Upload your own mp4/avi/mov to analyse it; the annotated video (H.264,
+plays in the browser) and the tracking stats are displayed and downloadable.
+
+### Docker (one command)
+
+```bash
+docker build -f docker/Dockerfile -t weedtrack-demo .   # needs models/best.pt + sample video (built above)
+docker run -p 8501:8501 weedtrack-demo                  # → http://localhost:8501
+```
+
+The image bundles the fine-tuned weights and the sample video, uses CPU-only
+PyTorch wheels (small image, no CUDA), and exposes a Docker `HEALTHCHECK` on
+Streamlit's health endpoint.
 
 ## Repository layout
 

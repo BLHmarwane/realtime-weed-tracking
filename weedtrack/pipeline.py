@@ -113,6 +113,7 @@ def run_on_video(
     conf: float = 0.25,
     imgsz: int = 640,
     device: str | None = None,
+    on_frame=None,
 ) -> dict:
     """Boucle complète : vidéo → détection + tracking → vidéo annotée + stats.
 
@@ -128,6 +129,7 @@ def run_on_video(
 
     capture = cv2.VideoCapture(str(source))
     source_fps = capture.get(cv2.CAP_PROP_FPS) or 25.0
+    total_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     capture.release()
 
     writer = None
@@ -157,6 +159,8 @@ def run_on_video(
         stats.start_frame()
         for det, track_id in zip(detections, track_ids):
             stats.add(det.class_name, track_id)
+        if on_frame is not None:
+            on_frame(stats.summary()["frames"], total_frames)
 
         annotated = annotate_frame(result.orig_img, detections, track_ids)
         if writer is None:

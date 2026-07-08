@@ -1,0 +1,14 @@
+# Contexte de build minimal : sans ça, data/ (800 Mo), .venv (Go) et runs/
+# partiraient dans le daemon Docker à chaque build.
+.venv
+.git
+__pycache__
+.pytest_cache
+.DS_Store
+runs
+data/*
+!data/sample_video.mp4
+models/*
+!models/best.pt
+STATE.md
+TUTORIAL.md
