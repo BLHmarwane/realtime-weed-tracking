@@ -9,9 +9,39 @@ Contient :
 
 import time
 
+from .detect import Detection
+from .track import iter_tracked_results
+
 # Couleurs BGR par classe (OpenCV) : crop en vert, weed en rouge.
 CLASS_COLORS = {"crop": (80, 200, 60), "weed": (60, 60, 230)}
 DEFAULT_COLOR = (200, 200, 200)
+
+
+class VideoPipelineError(RuntimeError):
+    """Raised when the source or destination video cannot be opened."""
+
+
+def _video_metadata(cv2_module, source: str) -> tuple[float, int]:
+    capture = cv2_module.VideoCapture(str(source))
+    try:
+        if not capture.isOpened():
+            raise VideoPipelineError(f"Cannot open source video: {source}")
+        source_fps = capture.get(cv2_module.CAP_PROP_FPS) or 25.0
+        total_frames = int(capture.get(cv2_module.CAP_PROP_FRAME_COUNT) or 0)
+        return float(source_fps), total_frames
+    finally:
+        capture.release()
+
+
+def _open_video_writer(
+    cv2_module, output_path: str, fps: float, width: int, height: int
+):
+    fourcc = cv2_module.VideoWriter_fourcc(*"mp4v")
+    writer = cv2_module.VideoWriter(str(output_path), fourcc, fps, (width, height))
+    if not writer.isOpened():
+        writer.release()
+        raise VideoPipelineError(f"Cannot open output video: {output_path}")
+    return writer
 
 
 class FpsMeter:
@@ -124,56 +154,53 @@ def run_on_video(
     """
     import cv2
 
-    from .detect import Detection
-    from .track import iter_tracked_results
-
-    capture = cv2.VideoCapture(str(source))
-    source_fps = capture.get(cv2.CAP_PROP_FPS) or 25.0
-    total_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-    capture.release()
+    source_fps, total_frames = _video_metadata(cv2, source)
 
     writer = None
-    meter = FpsMeter(window=120)
     stats = TrackingStats()
-    meter.tick()
-    for result in iter_tracked_results(
-        str(source), weights, tracker=tracker, conf=conf, imgsz=imgsz, device=device
-    ):
-        boxes = result.boxes
-        names = result.names
-        detections: list[Detection] = []
-        track_ids: list[int | None] = []
-        for i in range(len(boxes)):
-            x1, y1, x2, y2 = (float(v) for v in boxes.xyxy[i])
-            class_id = int(boxes.cls[i])
-            detections.append(
-                Detection(
-                    x1=x1, y1=y1, x2=x2, y2=y2,
-                    score=float(boxes.conf[i]),
-                    class_id=class_id,
-                    class_name=names.get(class_id, str(class_id)),
+    started_at = time.perf_counter()
+    try:
+        for result in iter_tracked_results(
+            str(source), weights, tracker=tracker, conf=conf, imgsz=imgsz, device=device
+        ):
+            boxes = result.boxes
+            names = result.names
+            detections: list[Detection] = []
+            track_ids: list[int | None] = []
+            for i in range(len(boxes)):
+                x1, y1, x2, y2 = (float(v) for v in boxes.xyxy[i])
+                class_id = int(boxes.cls[i])
+                detections.append(
+                    Detection(
+                        x1=x1, y1=y1, x2=x2, y2=y2,
+                        score=float(boxes.conf[i]),
+                        class_id=class_id,
+                        class_name=names.get(class_id, str(class_id)),
+                    )
                 )
-            )
-            track_ids.append(int(boxes.id[i]) if boxes.id is not None else None)
+                track_ids.append(int(boxes.id[i]) if boxes.id is not None else None)
 
-        stats.start_frame()
-        for det, track_id in zip(detections, track_ids):
-            stats.add(det.class_name, track_id)
-        if on_frame is not None:
-            on_frame(stats.summary()["frames"], total_frames)
+            stats.start_frame()
+            for det, track_id in zip(detections, track_ids):
+                stats.add(det.class_name, track_id)
+            if on_frame is not None:
+                on_frame(stats.summary()["frames"], total_frames)
 
-        annotated = annotate_frame(result.orig_img, detections, track_ids)
-        if writer is None:
-            height, width = annotated.shape[:2]
-            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-            writer = cv2.VideoWriter(str(output_path), fourcc, source_fps, (width, height))
-        writer.write(annotated)
-        meter.tick()
+            annotated = annotate_frame(result.orig_img, detections, track_ids)
+            if writer is None:
+                height, width = annotated.shape[:2]
+                writer = _open_video_writer(
+                    cv2, output_path, source_fps, width, height
+                )
+            writer.write(annotated)
+    finally:
+        if writer is not None:
+            writer.release()
 
-    if writer is not None:
-        writer.release()
-
+    elapsed = time.perf_counter() - started_at
     summary = stats.summary()
-    summary["pipeline_fps"] = round(meter.fps, 2)
+    summary["pipeline_fps"] = (
+        round(summary["frames"] / elapsed, 2) if elapsed > 0 else 0.0
+    )
     summary["source_fps"] = round(source_fps, 2)
     return summary
