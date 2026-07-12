@@ -51,14 +51,20 @@ class FakeCv2:
     def __init__(self, *, capture=None, writer=None):
         self.capture = capture
         self.writer = writer
+        self.capture_sources = []
+        self.writer_calls = []
+        self.fourcc_calls = []
 
     def VideoCapture(self, source):
+        self.capture_sources.append(source)
         return self.capture
 
     def VideoWriter_fourcc(self, *codec):
+        self.fourcc_calls.append(codec)
         return codec
 
     def VideoWriter(self, output_path, fourcc, fps, size):
+        self.writer_calls.append((output_path, fourcc, fps, size))
         return self.writer
 
 
@@ -82,20 +88,25 @@ class FakeResult:
     orig_img = FakeFrame()
 
 
-def test_video_metadata_rejects_unreadable_source_and_releases(monkeypatch):
+def test_video_metadata_rejects_unreadable_source_and_releases():
     capture = FakeCapture(opened=False)
     cv2_module = FakeCv2(capture=capture)
     with pytest.raises(pipeline.VideoPipelineError, match="Cannot open source video"):
         pipeline._video_metadata(cv2_module, "missing.mp4")
     assert capture.released is True
+    assert cv2_module.capture_sources == ["missing.mp4"]
 
 
-def test_open_video_writer_rejects_failure_and_releases(monkeypatch):
+def test_open_video_writer_rejects_failure_and_releases():
     writer = FakeWriter(opened=False)
     cv2_module = FakeCv2(writer=writer)
     with pytest.raises(pipeline.VideoPipelineError, match="Cannot open output video"):
         pipeline._open_video_writer(cv2_module, "out.mp4", 25.0, 640, 480)
     assert writer.released is True
+    assert cv2_module.fourcc_calls == [("m", "p", "4", "v")]
+    assert cv2_module.writer_calls == [
+        ("out.mp4", ("m", "p", "4", "v"), 25.0, (640, 480))
+    ]
 
 
 def test_run_on_video_uses_full_run_timing_and_releases_writer(monkeypatch):
@@ -117,7 +128,12 @@ def test_run_on_video_uses_full_run_timing_and_releases_writer(monkeypatch):
 
     assert summary["frames"] == 2
     assert summary["pipeline_fps"] == 1.0
+    assert capture.released is True
     assert writer.released is True
+    assert cv2_module.capture_sources == ["in.mp4"]
+    assert cv2_module.writer_calls == [
+        ("out.mp4", ("m", "p", "4", "v"), 30.0, (640, 480))
+    ]
 
 
 def test_run_on_video_releases_writer_when_tracking_fails(monkeypatch):

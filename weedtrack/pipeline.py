@@ -47,8 +47,8 @@ def _open_video_writer(
 class FpsMeter:
     """Mesure un débit en frames/seconde sur une fenêtre glissante.
 
-    Sert au benchmark honnête du pipeline : le FPS annoncé dans le README
-    devra sortir de cette classe, pas d'une estimation.
+    Cet utilitaire reste disponible pour un affichage local glissant ;
+    `run_on_video` calcule sa métrique publiée sur la séquence complète.
     """
 
     def __init__(self, window: int = 30):

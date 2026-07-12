@@ -11,12 +11,12 @@ measured on video and packaged as a local Streamlit + Docker demo.
 |---:|---:|---:|---:|
 | [**0.802**](metrics/baseline.json) | [**16.2 FPS**](metrics/tracking_cpu.json) | [**37.1 FPS**](metrics/tracking.json) | **47 automated tests** |
 
-During my master's degree, I built
-[ManualRegistrationGL_V2](https://github.com/BLHmarwane/ManualRegistrationGL_V2)
-in C++/OpenCV to explore classical crop/weed segmentation for an INRAE
-Clermont-Ferrand use case. This repository revisits that academic prototype
-with learned detection, video tracking, reproducible measurements, and a local
-product-style demo.
+This repository turns an agricultural vision dataset into a reproducible
+end-to-end case study: training, validation, temporal association, and a local
+product-style demo. My broader C++ portfolio also includes
+[ManualRegistrationGL_V2](https://github.com/BLHmarwane/ManualRegistrationGL_V2),
+a separate Qt6/OpenGL manual 3D registration simulator for medico-surgical
+interaction research.
 
 ```mermaid
 flowchart LR
@@ -49,6 +49,9 @@ on Darwin arm64 and are archived with their protocol.
 |---|---:|---|
 | CPU | 16.21 | [`tracking_cpu.json`](metrics/tracking_cpu.json) |
 | Apple MPS | 37.12 | [`tracking.json`](metrics/tracking.json) |
+
+CPU falls below the 25 FPS source rate, while Apple MPS exceeds it on this
+single synthetic-motion clip.
 
 ## Scope and limitations
 

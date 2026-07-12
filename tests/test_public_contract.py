@@ -164,11 +164,13 @@ def test_public_sources_do_not_expose_private_or_completed_project_copy():
 
 def test_tracking_copy_states_the_short_term_identity_limit():
     tracking_source = _read("weedtrack/track.py")
+    pipeline_source = _read("weedtrack/pipeline.py")
 
     assert (
         "ByteTrack associates short-term IDs across adjacent frames" in tracking_source
     )
     assert "does not prove long-term identity stability" in tracking_source
+    assert "le FPS annoncé dans le README" not in pipeline_source
 
 
 def test_readme_presents_a_concise_evidence_backed_case_study():
@@ -176,6 +178,8 @@ def test_readme_presents_a_concise_evidence_backed_case_study():
 
     assert len(readme.splitlines()) < 180
     for required in (
+        "0.802",
+        "25 FPS source",
         "validation split",
         "short-term track IDs",
         "Scope and limitations",
@@ -184,6 +188,11 @@ def test_readme_presents_a_concise_evidence_backed_case_study():
         "47 automated tests",
         "smoke-tests.yml",
         "ManualRegistrationGL_V2",
+        "Qt6/OpenGL manual 3D registration simulator",
+        "CPU falls below the 25 FPS source rate, while Apple MPS exceeds it",
+        "```mermaid",
+        "AGPL-3.0",
+        "CC BY 4.0",
     ):
         assert required in readme
     for forbidden in (
@@ -194,6 +203,7 @@ def test_readme_presents_a_concise_evidence_backed_case_study():
         "live Streamlit demo",
         "one-command Docker",
         "real-time capable on CPU",
+        "classical crop/weed segmentation for an INRAE",
     ):
         assert forbidden not in readme
 
@@ -204,4 +214,8 @@ def test_readme_presents_a_concise_evidence_backed_case_study():
         "actions/workflows/smoke-tests.yml)"
     )
     assert clickable_badge in readme
-    assert readme.count("curl -fL") >= 2
+    assert "![Detection and short-term tracking" in readme
+    assert (
+        "releases/download/v0.1.0/best.pt" in readme
+        and "releases/download/v0.1.0/sample_video.mp4" in readme
+    )
