@@ -1,8 +1,7 @@
-# models/ — hors Git
+# Local model artifacts
 
-Ce dossier reçoit les poids de modèles (`best.pt` après fine-tuning à M2, plus
-tard un export ONNX pour le Projet 2 du portfolio).
+Git ignores binary model artifacts because they are large and not meaningfully
+diffable. Place the fine-tuned weights at `models/best.pt` before running the
+local demo or building its Docker image.
 
-Tout son contenu est **ignoré par Git** : les poids ne sont jamais commités
-(trop lourds, non diffables). Pour la publication, ils seront attachés à une
-release GitHub ou re-téléchargés au démarrage de la démo.
+See the [project README](../README.md) for setup and artifact instructions.

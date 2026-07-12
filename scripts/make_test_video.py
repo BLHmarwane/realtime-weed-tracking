@@ -1,13 +1,9 @@
 """Génère une vidéo de test à partir des images val du dataset (CC BY 4.0).
 
-Pourquoi générer plutôt que télécharger une vidéo stock ? Décision documentée
-dans STATE.md : les vidéos agricoles libres (Pexels/Pixabay) montrent des
-cultures adultes filmées en drone ou à hauteur d'homme — hors distribution
-pour un modèle entraîné sur des plantules vues de dessus. À l'inverse, un
-balayage simulé des images val reproduit le point de vue d'une caméra de
-robot de désherbage qui avance au-dessus du rang : les plantes entrent et
-sortent du champ de vision de façon continue, ce qui est exactement le cas
-d'usage du tracking. Même source, même licence (CC BY 4.0), zéro ambiguïté.
+Les vidéos agricoles stock montrent généralement des cultures adultes filmées
+en drone ou à hauteur d'homme, hors distribution pour ce modèle. Un balayage
+simulé des images val conserve le point de vue en plongée, produit un mouvement
+continu pour le tracking et garde la même source sous licence CC BY 4.0.
 
 Usage :
     python scripts/make_test_video.py [--num-images 6] [--seconds 4]

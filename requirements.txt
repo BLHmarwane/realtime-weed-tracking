@@ -1,15 +1,6 @@
-# Dépendances du projet — à installer dans le venv DU PROJET (pas celui de career_os) :
-#   python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
-#
-# Le package weedtrack reste importable sans ces dépendances (imports paresseux) ;
-# elles ne sont requises que pour l'entraînement, le tracking et la démo.
-
-ultralytics>=8.3        # YOLO : détection + tracking intégré (AGPL-3.0)
-lap>=0.5                # assignation pour ByteTrack (requis par model.track)
-opencv-python>=4.10     # lecture vidéo, annotation des frames
-pyyaml>=6.0             # lecture de configs/config.yaml
-streamlit>=1.38         # démo web (M4)
-imageio-ffmpeg>=0.5     # ffmpeg embarqué : ré-encodage H.264 pour l'aperçu navigateur
-
-# Développement
-pytest>=8.0
+ultralytics>=8.4,<9
+lap>=0.5,<1
+opencv-python>=4.10,<5
+pyyaml>=6,<7
+streamlit>=1.59,<2
+imageio-ffmpeg>=0.6,<1

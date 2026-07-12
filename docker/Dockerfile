@@ -1,7 +1,7 @@
-# Image de démo — objectif : `docker run -p 8501:8501 weedtrack-demo` → démo utilisable.
+# Image locale de la démo Streamlit.
 #
-# Build (depuis la racine du projet ; nécessite models/best.pt entraîné à M2
-# et data/sample_video.mp4 généré par scripts/make_test_video.py) :
+# Build depuis la racine après avoir placé les poids dans models/best.pt et
+# généré data/sample_video.mp4 avec scripts/make_test_video.py :
 #   docker build -f docker/Dockerfile -t weedtrack-demo .
 
 FROM python:3.12-slim
@@ -19,16 +19,22 @@ ENV YOLO_CONFIG_DIR=/tmp/ultralytics \
 
 COPY requirements.txt .
 # torch CPU d'abord (roues légères) : sinon pip tire les roues CUDA multi-Go
-RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu \
+RUN pip install --no-cache-dir "torch>=2.12,<3" "torchvision>=0.27,<1" \
+        --index-url https://download.pytorch.org/whl/cpu \
     && pip install --no-cache-dir -r requirements.txt
 
 COPY weedtrack/ weedtrack/
 COPY configs/ configs/
 COPY app/ app/
-# Poids fine-tunés + vidéo d'exemple : hors Git, présents localement au build
-# (à M5 : publiés en release GitHub pour un build reproductible partout)
+# Ces deux artefacts sont hors Git et doivent être présents localement au build.
 COPY models/best.pt models/best.pt
 COPY data/sample_video.mp4 data/sample_video.mp4
+
+RUN useradd --create-home --uid 10001 appuser \
+    && mkdir -p /tmp/ultralytics /tmp/.streamlit \
+    && chown -R appuser:appuser /tmp/ultralytics /tmp/.streamlit /app
+ENV HOME=/tmp
+USER 10001:10001
 
 EXPOSE 8501
 

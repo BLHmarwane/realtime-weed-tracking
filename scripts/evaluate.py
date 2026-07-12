@@ -1,7 +1,7 @@
 """Évalue les poids fine-tunés et archive les métriques officielles.
 
-Règle du projet (STATE.md) : tout chiffre publié dans le README sort d'ici et
-est archivé dans metrics/ — jamais écrit à la main. Le script produit :
+Tout chiffre publié dans le README est produit ici et archivé dans metrics/.
+Le script produit :
 
 - mAP@50 et mAP@50-95 globaux et par classe (val split) ;
 - un benchmark FPS d'inférence honnête (weedtrack.pipeline.FpsMeter) sur des

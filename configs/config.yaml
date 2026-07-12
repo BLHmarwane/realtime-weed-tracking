@@ -2,20 +2,19 @@
 # Tout (train, eval, tracking, démo) lit ce fichier via weedtrack.config.load_config.
 
 dataset:
-  # Rempli à M1 une fois le dataset choisi (licence vérifiée d'abord — voir STATE.md).
+  # Dataset Sudars et al. (CC BY 4.0), préparé par scripts/download_dataset.py.
   data_yaml: data/dataset/data.yaml
-  classes: [crop, weed]        # confirmé M1 : labels natifs du dataset Sudars (ids 0/1)
+  classes: [crop, weed]        # labels natifs du dataset Sudars (ids 0/1)
 
 model:
   weights: yolo11n.pt          # nano : le plus léger, adapté au temps réel CPU
   imgsz: 640
   conf_threshold: 0.25
-  iou_threshold: 0.45
 
 train:
   epochs: 60
   batch: 16
-  device: cpu                  # défaut portable ; "mps" validé sur Apple Silicon (M2 : entraînement 60 époques en 1,9 h)
+  device: cpu                  # défaut portable ; "mps" est disponible sur Apple Silicon
 
 tracking:
   tracker: bytetrack.yaml      # config ByteTrack fournie par Ultralytics

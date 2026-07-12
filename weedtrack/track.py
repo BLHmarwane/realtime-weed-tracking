@@ -1,10 +1,7 @@
-"""Tracking multi-objets : suivi des plantes d'une frame à l'autre.
+"""Multi-object tracking across video frames.
 
-Choix par défaut (voir STATE.md « Questions ouvertes ») : le tracking intégré
-d'Ultralytics avec ByteTrack (`model.track`), qui associe un identifiant stable
-à chaque objet au fil de la vidéo. C'est ce qui distingue « je détecte une
-adventice » de « je sais que c'est LA MÊME adventice que sur la frame
-précédente » — indispensable pour ne pas traiter deux fois la même plante.
+ByteTrack associates short-term IDs across adjacent frames.
+It does not prove long-term identity stability or guarantee treatment deduplication.
 """
 
 from collections.abc import Iterator
@@ -23,15 +20,15 @@ def iter_tracked_results(
     `source` : chemin vidéo, dossier d'images ou index de webcam.
     Chaque résultat Ultralytics porte `boxes.id` (l'identifiant de piste).
 
-    TODO(M3) : mesurer la stabilité des IDs (fragmentation de pistes) et le
-    FPS réel via `weedtrack.pipeline.FpsMeter`, puis figer les seuils.
+    Les IDs représentent des associations à court terme et peuvent se
+    fragmenter ; le débit mesuré est archivé par les scripts d'évaluation.
     """
     try:
         from ultralytics import YOLO
     except ImportError as exc:
         raise ImportError(
             "ultralytics n'est pas installé. Créer le venv du projet puis "
-            "`pip install -r requirements.txt` (voir TUTORIAL.md §7)."
+            "`pip install -r requirements.txt` (voir README.md)."
         ) from exc
 
     model = YOLO(weights)
