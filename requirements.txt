@@ -8,7 +8,7 @@ ultralytics>=8.3        # YOLO : détection + tracking intégré (AGPL-3.0)
 lap>=0.5                # assignation pour ByteTrack (requis par model.track)
 opencv-python>=4.10     # lecture vidéo, annotation des frames
 pyyaml>=6.0             # lecture de configs/config.yaml
-streamlit>=1.38         # démo web (M4)
+streamlit>=1.59,<2      # démo web (M4)
 imageio-ffmpeg>=0.5     # ffmpeg embarqué : ré-encodage H.264 pour l'aperçu navigateur
 
 # Développement
