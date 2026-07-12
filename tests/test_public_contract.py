@@ -1,5 +1,6 @@
 """Repository-level smoke contracts with no heavyweight runtime imports."""
 
+import json
 import re
 import subprocess
 from pathlib import Path
@@ -175,16 +176,21 @@ def test_tracking_copy_states_the_short_term_identity_limit():
 
 def test_readme_presents_a_concise_evidence_backed_case_study():
     readme = _read("README.md")
+    cpu_results = json.loads(_read("metrics/tracking_cpu.json"))["results"]
+    mps_results = json.loads(_read("metrics/tracking.json"))["results"]
 
     assert len(readme.splitlines()) < 180
+    assert cpu_results["pipeline_fps"] == 15.3
+    assert mps_results["pipeline_fps"] == 28.12
+    assert cpu_results["source_fps"] == mps_results["source_fps"] == 25.0
     for required in (
         "0.802",
         "25 FPS source",
         "validation split",
         "short-term track IDs",
         "Scope and limitations",
-        "16.2",
-        "37.1",
+        "15.3",
+        "28.1",
         "47 automated tests",
         "smoke-tests.yml",
         "ManualRegistrationGL_V2",
@@ -204,6 +210,8 @@ def test_readme_presents_a_concise_evidence_backed_case_study():
         "one-command Docker",
         "real-time capable on CPU",
         "classical crop/weed segmentation for an INRAE",
+        "16.2 FPS",
+        "37.1 FPS",
     ):
         assert forbidden not in readme
 

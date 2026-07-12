@@ -9,7 +9,7 @@ measured on video and packaged as a local Streamlit + Docker demo.
 
 | Validation mAP@50 | CPU video pipeline | Apple MPS video pipeline | Test suite |
 |---:|---:|---:|---:|
-| [**0.802**](metrics/baseline.json) | [**16.2 FPS**](metrics/tracking_cpu.json) | [**37.1 FPS**](metrics/tracking.json) | **47 automated tests** |
+| [**0.802**](metrics/baseline.json) | [**15.3 FPS**](metrics/tracking_cpu.json) | [**28.1 FPS**](metrics/tracking.json) | **47 automated tests** |
 
 This repository turns an agricultural vision dataset into a reproducible
 end-to-end case study: training, validation, temporal association, and a local
@@ -47,8 +47,8 @@ on Darwin arm64 and are archived with their protocol.
 
 | Device | Pipeline FPS | Evidence |
 |---|---:|---|
-| CPU | 16.21 | [`tracking_cpu.json`](metrics/tracking_cpu.json) |
-| Apple MPS | 37.12 | [`tracking.json`](metrics/tracking.json) |
+| CPU | 15.30 | [`tracking_cpu.json`](metrics/tracking_cpu.json) |
+| Apple MPS | 28.12 | [`tracking.json`](metrics/tracking.json) |
 
 CPU falls below the 25 FPS source rate, while Apple MPS exceeds it on this
 single synthetic-motion clip.

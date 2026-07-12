@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-07T21:08:04+00:00",
+  "generated_at": "2026-07-12T21:10:48+00:00",
   "source": "test_video.mp4",
   "weights": "best.pt",
   "tracker": "bytetrack.yaml",
@@ -16,7 +16,7 @@
       "weed": 51
     },
     "untracked_detections": 48,
-    "pipeline_fps": 16.21,
+    "pipeline_fps": 15.3,
     "source_fps": 25.0
   }
 }
