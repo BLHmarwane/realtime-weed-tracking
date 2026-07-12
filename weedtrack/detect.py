@@ -32,7 +32,7 @@ class Detector:
         except ImportError as exc:  # message actionnable plutôt qu'un traceback nu
             raise ImportError(
                 "ultralytics n'est pas installé. Créer le venv du projet puis "
-                "`pip install -r requirements.txt` (voir TUTORIAL.md §7)."
+                "`pip install -r requirements.txt` (voir README.md)."
             ) from exc
 
         self._model = YOLO(weights)
@@ -42,8 +42,8 @@ class Detector:
     def predict(self, frame) -> list[Detection]:
         """Détecte sur une frame BGR (ndarray OpenCV) et retourne les boîtes.
 
-        TODO(M2) : valider seuils et classes sur le dataset réel, ajouter un
-        test d'intégration sur une image d'exemple.
+        L'inférence complète requiert les dépendances et les poids locaux
+        décrits dans README.md ; les smoke tests couvrent l'import léger.
         """
         results = self._model.predict(
             frame, conf=self.conf, imgsz=self.imgsz, verbose=False

@@ -2,7 +2,8 @@
 
 Dataset : « Dataset of annotated food crops and weed images for robotic
 computer vision control » (Sudars et al., 2020), Mendeley Data nj4vtk4tt6 v1,
-licence CC BY 4.0 — vérifiée avant téléchargement (règle STATE.md).
+licence CC BY 4.0. Le téléchargement utilise l'URL officielle et vérifie le
+SHA-256 publié avant extraction.
 
 Étapes (chacune est idempotente : relancer le script ne refait que le manquant) :
 

@@ -21,8 +21,7 @@ def test_package_importable_sans_dependances_lourdes():
 
 
 def test_structure_du_projet():
-    # Contrat public du repo uniquement : STATE.md et TUTORIAL.md (documents
-    # de travail privés) n'existent pas dans la copie publiée.
+    # Contrat minimal des fichiers nécessaires dans une copie publique.
     attendus = [
         "README.md",
         "requirements.txt",

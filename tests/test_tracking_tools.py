@@ -1,4 +1,4 @@
-"""Tests des briques M3 : trajectoire de pan, stats de tracking, payload.
+"""Tests de la trajectoire de pan, des stats de tracking et du payload.
 
 Tout est pur Python — exécutable dans la CI sans dataset ni libs lourdes.
 """

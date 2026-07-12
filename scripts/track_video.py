@@ -64,7 +64,9 @@ def main() -> None:
     if not Path(args.source).exists():
         raise SystemExit(f"{args.source} introuvable — lancer scripts/make_test_video.py d'abord.")
     if not Path(args.weights).exists():
-        raise SystemExit(f"{args.weights} introuvable — lancer scripts/train.py d'abord (M2).")
+        raise SystemExit(
+            f"{args.weights} introuvable — lancer scripts/train.py d'abord."
+        )
 
     config = load_config()
     device = args.device or config["train"]["device"]
