@@ -1,157 +1,136 @@
-# Real-Time Weed Detection & Tracking
+# Weed Detection and Short-Term Tracking
 
-![tests](https://github.com/BLHmarwane/realtime-weed-tracking/actions/workflows/tests.yml/badge.svg)
+[![smoke-tests](https://github.com/BLHmarwane/realtime-weed-tracking/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/BLHmarwane/realtime-weed-tracking/actions/workflows/smoke-tests.yml)
 
-Detect crops vs. weeds in video and give every plant a **stable tracking ID** —
-so a precision-weeding robot never treats the same weed twice.
+Fine-tuned YOLO11n crop/weed detection with ByteTrack short-term track IDs,
+measured on video and packaged as a local Streamlit + Docker demo.
 
-![Detection and tracking demo — red boxes are weeds, with stable track IDs](assets/demo.gif)
+![Detection and short-term tracking in the local demo](assets/demo.gif)
 
-## The story
+| Validation mAP@50 | CPU video pipeline | Apple MPS video pipeline | Test suite |
+|---:|---:|---:|---:|
+| [**0.802**](metrics/baseline.json) | [**16.2 FPS**](metrics/tracking_cpu.json) | [**37.1 FPS**](metrics/tracking.json) | **47 automated tests** |
 
-During my Master's I prototyped real-time weed detection with **classical
-computer vision** (C++/OpenCV — grayscale, filtering, morphology) for a real
-use case brought by a research engineer from INRAE Clermont-Ferrand.
+During my master's degree, I built
+[ManualRegistrationGL_V2](https://github.com/BLHmarwane/ManualRegistrationGL_V2)
+in C++/OpenCV to explore classical crop/weed segmentation for an INRAE
+Clermont-Ferrand use case. This repository revisits that academic prototype
+with learned detection, video tracking, reproducible measurements, and a local
+product-style demo.
 
-This project revisits the same problem with a **modern deep-learning stack**:
+```mermaid
+flowchart LR
+    A["Licensed VOC dataset"] --> B["Deterministic preparation<br/>train 941 / validation 235, seed 42"]
+    B --> C["YOLO11n training"]
+    C --> D["Validation metrics + pan video"]
+    D --> E["ByteTrack short-term IDs"]
+    E --> F["Annotated MP4"]
+    F --> G["Local Streamlit / Docker demo"]
+```
 
-- fine-tuned **YOLO** detector (Ultralytics),
-- **ByteTrack** multi-object tracking on video streams,
-- measured metrics (mAP, FPS) reproducible from scripts,
-- a live **Streamlit** demo, packaged as a **one-command Docker image**.
+## Results and protocol
 
-Same problem, two eras of computer vision — and I can explain both without a
-black box.
+Dataset preparation converts Pascal VOC annotations into YOLO labels, maps the
+source species to `crop` and `weed`, then creates a deterministic 941-image
+train / 235-image validation split with seed 42. Detection scores are archived
+in [`baseline.json`](metrics/baseline.json) and
+[`baseline_cpu.json`](metrics/baseline_cpu.json).
 
-## Planned stack
+| Metric | Overall | Crop | Weed |
+|---|---:|---:|---:|
+| mAP@50 | 0.8024 | 0.7926 | 0.8122 |
+| mAP@50:95 | 0.5221 | 0.5217 | 0.5224 |
 
-| Piece | Choice | Why |
-|---|---|---|
-| Detection | Ultralytics YOLO (nano) | Solid fine-tuning workflow, real-time capable on CPU |
-| Tracking | ByteTrack | Robust ID assignment, standard in modern MOT |
-| Video I/O | OpenCV | Frame-level control, annotation overlays |
-| Demo | Streamlit | Upload a video → watch detections + tracks live |
-| Packaging | Docker | `docker run` → demo up, zero setup |
+Video throughput covers detection, ByteTrack association, annotation, and MP4
+writing on a 600-frame clip with a 25 FPS source. Both measurements were made
+on Darwin arm64 and are archived with their protocol.
 
-## Milestones
+| Device | Pipeline FPS | Evidence |
+|---|---:|---|
+| CPU | 16.21 | [`tracking_cpu.json`](metrics/tracking_cpu.json) |
+| Apple MPS | 37.12 | [`tracking.json`](metrics/tracking.json) |
 
-| # | Deliverable | Success criteria | Status |
-|---|---|---|---|
-| M0 | Scaffold, docs, method | Smoke tests green, independent audit passed | ✅ |
-| M1 | Dataset selected (license checked) + EDA | Valid `data.yaml`, class stats documented | ✅ |
-| M2 | Fine-tuned baseline | mAP@50 measured on val split, archived in `metrics/` | ✅ |
-| M3 | Video pipeline: detection + tracking | FPS benchmark + annotated video with stable IDs | ✅ |
-| M4 | Streamlit demo + Docker image | One-command `docker run` → usable demo | ✅ |
-| M5 | Public release | Public repo, English README, demo GIF, metrics table | ✅ |
+## Scope and limitations
 
-## Metrics
-
-*Every number below is produced by `scripts/evaluate.py` and archived in
-[`metrics/`](metrics/) — nothing is hand-written.*
-
-Fine-tuned **YOLO11n** (2.58 M fused parameters, as reported by the model
-summary in `scripts/evaluate.py`), 60 epochs at 640 px.
-Validation split: 235 images / 1 483 boxes.
-
-| Metric | all | crop | weed |
-|---|---|---|---|
-| mAP@50 | **0.802** | 0.793 | 0.812 |
-| mAP@50-95 | 0.522 | 0.522 | 0.522 |
-
-> Note: the val split contains only 56 `crop` boxes (the dataset is heavily
-> weed-dominated), so per-class `crop` numbers carry statistical noise.
-
-Measured single-image inference speed (100 val images, 640 px, Apple M1 Pro):
-
-| Device | FPS |
-|---|---|
-| CPU | 22.3 |
-| Apple MPS | 25.3 |
-
-End-to-end **video pipeline** (detection + ByteTrack tracking + annotation +
-video writing), 640×640 test video, 600 frames — measured by
-`scripts/track_video.py`:
-
-| Device | Pipeline FPS |
-|---|---|
-| CPU | 16.2 |
-| Apple MPS | 37.1 |
-
-53 unique track IDs over 6 simulated camera passes (~29 frames per track on
-average — stable IDs, no fragmentation), identical tracking results on CPU
-and MPS.
-
-Sources: [`metrics/baseline.json`](metrics/baseline.json),
-[`metrics/baseline_cpu.json`](metrics/baseline_cpu.json),
-[`metrics/tracking.json`](metrics/tracking.json),
-[`metrics/tracking_cpu.json`](metrics/tracking_cpu.json),
-[`metrics/dataset_stats.json`](metrics/dataset_stats.json).
-
-## Test video
-
-`scripts/make_test_video.py` builds a deterministic test video from val
-images (same CC BY 4.0 source): a 640×640 window pans across each field
-image, simulating a weeding-robot camera pass — plants enter and leave the
-frame continuously, which is exactly what the tracker must handle. Stock
-footage was deliberately rejected: drone shots of mature crops are
-out-of-distribution for a model trained on top-down seedling images.
+- Detection quality is reported on the validation split, not an independent
+  test split.
+- The 600-frame tracking clip is a deterministic pan created from validation
+  images, not a field video.
+- No MOT ground truth is available, so no IDF1, HOTA, MOTA, or fragmentation
+  metric is reported.
+- ByteTrack provides short-term track IDs across nearby frames, not persistent
+  biological identity.
+- The Streamlit demo runs locally; no hosted service is provided.
 
 ## Quickstart
 
 ### Local
 
 ```bash
-python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
+git clone https://github.com/BLHmarwane/realtime-weed-tracking.git
+cd realtime-weed-tracking
+python3.12 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 
-# Either: reproduce everything from scratch
-.venv/bin/python scripts/download_dataset.py      # dataset (CC BY 4.0, SHA-256 checked)
-.venv/bin/python scripts/train.py --device mps    # or cpu → produces models/best.pt
-.venv/bin/python scripts/make_test_video.py --num-images 2 --seconds 5 --out data/sample_video.mp4
+mkdir -p models data
+curl -fL -o models/best.pt https://github.com/BLHmarwane/realtime-weed-tracking/releases/download/v0.1.0/best.pt
+curl -fL -o data/sample_video.mp4 https://github.com/BLHmarwane/realtime-weed-tracking/releases/download/v0.1.0/sample_video.mp4
 
-# Or: skip training, grab the released weights + sample video
-curl -L -o models/best.pt https://github.com/BLHmarwane/realtime-weed-tracking/releases/download/v0.1.0/best.pt
-curl -L -o data/sample_video.mp4 https://github.com/BLHmarwane/realtime-weed-tracking/releases/download/v0.1.0/sample_video.mp4
-
-.venv/bin/streamlit run app/streamlit_app.py      # → http://localhost:8501
+.venv/bin/streamlit run app/streamlit_app.py
 ```
 
-The demo ships with a **built-in sample video button** — no file needed to try
-it. Upload your own mp4/avi/mov to analyse it; the annotated video (H.264,
-plays in the browser) and the tracking stats are displayed and downloadable.
+Open `http://localhost:8501`, choose the sample or upload an MP4/AVI/MOV, then
+inspect and download the annotated result and JSON summary.
 
-### Docker (one command)
+### Docker
+
+Place `models/best.pt` and `data/sample_video.mp4` as shown above, then build
+and run the image locally:
 
 ```bash
-docker build -f docker/Dockerfile -t weedtrack-demo .   # needs models/best.pt + sample video (built above)
-docker run -p 8501:8501 weedtrack-demo                  # → http://localhost:8501
+docker build -f docker/Dockerfile -t weedtrack-demo .
+docker run --rm -p 8501:8501 weedtrack-demo
 ```
 
-The image bundles the fine-tuned weights and the sample video, uses CPU-only
-PyTorch wheels (small image, no CUDA), and exposes a Docker `HEALTHCHECK` on
-Streamlit's health endpoint.
+## Reproduce the evidence
+
+The commands below download and verify the dataset, recreate the seeded split
+and 600-frame pan, train the detector, and archive evaluation outputs:
+
+```bash
+.venv/bin/python scripts/download_dataset.py --val-ratio 0.2 --seed 42
+.venv/bin/python scripts/train.py --device mps
+.venv/bin/python scripts/make_test_video.py --num-images 6 --seconds 4 --fps 25 --seed 42
+
+.venv/bin/python scripts/evaluate.py --device mps --out metrics/baseline.json
+.venv/bin/python scripts/evaluate.py --device cpu --out metrics/baseline_cpu.json
+.venv/bin/python scripts/track_video.py --device mps --metrics metrics/tracking.json --out runs/tracking/annotated_mps.mp4
+.venv/bin/python scripts/track_video.py --device cpu --metrics metrics/tracking_cpu.json --out runs/tracking/annotated_cpu.mp4
+```
 
 ## Repository layout
 
+```text
+app/        Streamlit interface
+weedtrack/  detection, tracking, and video pipeline
+scripts/    dataset preparation, training, evaluation, and video runs
+configs/    shared experiment and demo configuration
+metrics/    tracked JSON evidence
+tests/      lightweight automated contracts and unit tests
+docker/     local container definition
+assets/     README media
+data/       local dataset and videos (ignored except documentation)
+models/     local model artifacts (ignored except documentation)
 ```
-weedtrack/        core package: detection, tracking, video pipeline
-configs/          single YAML config driving train / eval / demo
-scripts/          download_dataset, train, evaluate (reproducible metrics)
-app/              Streamlit demo
-docker/           Dockerfile
-tests/            smoke tests (run without the heavy ML dependencies)
-data/, models/    git-ignored: datasets and weights never enter the repo
-```
 
-## Dataset
+## Dataset and licenses
 
-Training uses the **Dataset of annotated food crops and weed images for
-robotic computer vision control** (Sudars et al., 2020) — 1 176 field and
-controlled-environment images, 6 crop and 8 weed species (7 853 annotations),
-mapped to two classes (`crop` / `weed`) for this project.
-License: **CC BY 4.0** — [data.mendeley.com/datasets/nj4vtk4tt6/1](https://data.mendeley.com/datasets/nj4vtk4tt6/1).
+Training uses the [Dataset of annotated food crops and weed images for robotic
+computer vision control](https://data.mendeley.com/datasets/nj4vtk4tt6/1)
+(Sudars et al., 2020), mapped to `crop` and `weed`. The dataset is licensed
+under CC BY 4.0 and remains separate from the repository.
 
-## License
-
-This repository is released under **AGPL-3.0** (see [LICENSE](LICENSE)),
-required by its dependency on
-[Ultralytics](https://github.com/ultralytics/ultralytics) (AGPL-3.0).
+The project source code is released under [AGPL-3.0](LICENSE). Model weights
+are published as separate release artifacts; reuse remains subject to the
+applicable dataset attribution and
+[Ultralytics ecosystem](https://github.com/ultralytics/ultralytics) terms.

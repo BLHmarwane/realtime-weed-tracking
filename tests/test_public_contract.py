@@ -169,3 +169,39 @@ def test_tracking_copy_states_the_short_term_identity_limit():
         "ByteTrack associates short-term IDs across adjacent frames" in tracking_source
     )
     assert "does not prove long-term identity stability" in tracking_source
+
+
+def test_readme_presents_a_concise_evidence_backed_case_study():
+    readme = _read("README.md")
+
+    assert len(readme.splitlines()) < 180
+    for required in (
+        "validation split",
+        "short-term track IDs",
+        "Scope and limitations",
+        "16.2",
+        "37.1",
+        "47 automated tests",
+        "smoke-tests.yml",
+        "ManualRegistrationGL_V2",
+    ):
+        assert required in readme
+    for forbidden in (
+        "Planned stack",
+        "Milestones",
+        "never treats" + " the same weed twice",
+        "no fragmentation",
+        "live Streamlit demo",
+        "one-command Docker",
+        "real-time capable on CPU",
+    ):
+        assert forbidden not in readme
+
+    clickable_badge = (
+        "[![smoke-tests](https://github.com/BLHmarwane/realtime-weed-tracking/"
+        "actions/workflows/smoke-tests.yml/badge.svg)]"
+        "(https://github.com/BLHmarwane/realtime-weed-tracking/"
+        "actions/workflows/smoke-tests.yml)"
+    )
+    assert clickable_badge in readme
+    assert readme.count("curl -fL") >= 2
